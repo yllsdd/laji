@@ -39,19 +39,32 @@
   --topbar-height: 66px;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 html {
   min-height: 100%;
   background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--topbar-height) + 28px);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--text);
   font-family:
     Inter, "Noto Sans JP", "Noto Sans SC", ui-sans-serif, system-ui, -apple-system,
@@ -64,15 +77,22 @@ body {
   letter-spacing: 0;
 }
 
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 button,
 input,
 select,
 textarea {
+  max-width: 100%;
   font: inherit;
 }
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 button:disabled {
@@ -89,6 +109,25 @@ textarea:focus-visible,
 
 a {
   color: inherit;
+}
+
+img,
+svg,
+canvas,
+video,
+iframe {
+  max-width: 100%;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+textarea {
+  overflow-wrap: anywhere;
 }
 
 ::selection {

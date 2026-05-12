@@ -218,8 +218,8 @@ button.premium-card {
 }
 
 .command-search__clear {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -238,7 +238,7 @@ button.premium-card {
 }
 
 .command-search__suggestions button {
-  min-height: 28px;
+  min-height: 34px;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   padding: 0 10px;
@@ -251,7 +251,7 @@ button.premium-card {
 .command-search__action,
 .premium-action,
 .kawaii-button {
-  min-height: 42px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -299,6 +299,7 @@ button.premium-card {
 
 .app-preview {
   position: relative;
+  max-width: 100%;
   min-height: 540px;
   display: grid;
   place-items: center;
@@ -308,6 +309,7 @@ button.premium-card {
 .app-preview__stage {
   position: relative;
   width: min(100%, 356px);
+  max-width: 100%;
   isolation: isolate;
 }
 
@@ -625,7 +627,7 @@ button.premium-card {
 }
 
 .filter-chip {
-  min-height: 34px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -795,8 +797,8 @@ button.premium-card {
 }
 
 .icon-button {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -842,9 +844,12 @@ button.premium-card {
 .detail-panel {
   position: sticky;
   top: calc(var(--topbar-height) + 34px);
+  min-width: 0;
   display: grid;
   gap: var(--space-4);
   overflow: hidden;
+  scroll-margin-top: calc(var(--topbar-height) + 26px);
+  scroll-margin-bottom: calc(118px + env(safe-area-inset-bottom));
   padding: var(--space-5);
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
@@ -926,6 +931,7 @@ button.premium-card {
   margin: 0;
   color: var(--text);
   line-height: 1.72;
+  overflow-wrap: anywhere;
 }
 
 .note-panel--warning {
@@ -1133,7 +1139,7 @@ button.premium-card {
 }
 
 .category-choice {
-  min-height: 34px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1170,6 +1176,7 @@ button.premium-card {
 
 .field-block textarea {
   width: 100%;
+  min-height: 128px;
   resize: vertical;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
@@ -1178,6 +1185,7 @@ button.premium-card {
   outline: 0;
   padding: var(--space-4);
   line-height: 1.6;
+  font-size: 16px;
 }
 
 .field-block textarea:focus {
@@ -1227,6 +1235,16 @@ button.premium-card {
   border-radius: var(--radius-card);
   background: rgba(255, 255, 255, 0.70);
   box-shadow: var(--shadow-card);
+}
+
+.chart-card .recharts-responsive-container,
+.chart-card .recharts-wrapper,
+.chart-card .recharts-surface {
+  max-width: 100%;
+}
+
+.mobile-inline-detail {
+  display: none;
 }
 
 .legend-list {
@@ -1393,8 +1411,17 @@ button.premium-card {
 }
 
 @media (max-width: 900px) {
+  .desktop-detail {
+    display: none;
+  }
+
+  .mobile-inline-detail {
+    display: grid;
+  }
+
   .detail-panel {
     position: static;
+    overflow: visible;
   }
 
   .option-grid {
@@ -1421,21 +1448,35 @@ button.premium-card {
     grid-template-columns: 1fr;
   }
 
+  .command-search__field {
+    padding: 0 var(--space-2);
+  }
+
   .command-search__action {
     width: 100%;
   }
 
   .command-search__suggestions {
+    overflow-x: auto;
+    flex-wrap: nowrap;
     padding-left: var(--space-3);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .command-search__suggestions button {
+    min-height: 40px;
+    flex: 0 0 auto;
   }
 
   .filter-row {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .filter-chip {
+    min-height: 44px;
     flex: 0 0 auto;
   }
 
@@ -1449,8 +1490,30 @@ button.premium-card {
     align-items: flex-start;
   }
 
+  .panel-heading {
+    flex-wrap: wrap;
+  }
+
+  .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .category-choice {
+    min-height: 44px;
+  }
+
+  .submit-button {
+    width: 100%;
+    justify-self: stretch;
+  }
+
   .chart-card,
   .question-card {
     padding: var(--space-5);
+  }
+
+  .chart-card {
+    overflow: hidden;
   }
 }

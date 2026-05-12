@@ -393,6 +393,7 @@
   grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
   gap: var(--space-5);
   align-items: start;
+  min-width: 0;
 }
 
 .results-panel {
@@ -484,6 +485,7 @@
 .category-detail {
   position: sticky;
   top: calc(var(--topbar-height) + 34px);
+  min-width: 0;
   display: grid;
   gap: var(--space-4);
   overflow: hidden;
@@ -528,6 +530,7 @@
   right: 22px;
   bottom: 18px;
   color: rgba(93, 183, 222, 0.16);
+  pointer-events: none;
 }
 
 .compact-item-grid {
@@ -595,6 +598,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(360px, 0.74fr);
   gap: var(--space-4);
   align-items: start;
+  min-width: 0;
 }
 
 .favorites-collection {
@@ -645,6 +649,10 @@
 .analytics-grid {
   grid-template-columns: minmax(0, 1.28fr) minmax(340px, 0.88fr);
   align-items: stretch;
+}
+
+.analytics-grid > * {
+  min-width: 0;
 }
 
 .chart-card--wide {
@@ -847,6 +855,12 @@
     position: static;
   }
 
+  .compact-item-grid {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
   .chart-card--wide {
     grid-row: auto;
   }
@@ -901,6 +915,7 @@
 
   .product-hero {
     min-height: auto;
+    gap: var(--space-5);
   }
 
   .product-hero h1,
@@ -926,7 +941,7 @@
   }
 
   .product-hero .app-preview {
-    min-height: 470px;
+    min-height: auto;
   }
 
   .app-preview__stage {
@@ -936,9 +951,42 @@
   .app-preview__mascot {
     display: none;
   }
+
+  .page-hero > .mascot-mini,
+  .command-center__mascot {
+    display: none;
+  }
+
+  .category-detail {
+    overflow: visible;
+    padding: var(--space-4);
+  }
+
+  .dictionary-card {
+    min-height: auto;
+    padding: var(--space-4);
+  }
+
+  .favorites-count {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .favorites-count .mascot-mini {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
+  .product-hero,
+  .page-hero,
+  .command-center,
+  .home-editorial,
+  .project-case-hero,
+  .survey-complete {
+    padding: var(--space-5);
+  }
+
   .product-hero h1,
   .page-hero h1,
   .command-center h1,
@@ -952,5 +1000,15 @@
 
   .editorial-metrics {
     grid-template-columns: 1fr;
+  }
+
+  .project-case-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-reminder,
+  .preview-result,
+  .preview-warning {
+    padding: var(--space-3);
   }
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CommandSearch from '../components/CommandSearch';
 import EmptyState from '../components/EmptyState';
 import MascotMini from '../components/MascotMini';
@@ -21,6 +21,8 @@ export default function Search({
   const [queryInput, setQueryInput] = useState('');
   const [categoryId, setCategoryId] = useState('all');
   const [selectedId, setSelectedId] = useState(null);
+  const detailRef = useRef(null);
+  const selectedByTouchRef = useRef(false);
   const debouncedQuery = useDebouncedValue(queryInput, 180);
 
   const filteredItems = useMemo(
@@ -50,6 +52,19 @@ export default function Search({
   const handleCategoryChange = useCallback((nextCategoryId) => {
     setCategoryId(nextCategoryId);
   }, []);
+  const handleSelectItem = useCallback((itemId) => {
+    selectedByTouchRef.current = true;
+    setSelectedId(itemId);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedItem || !selectedByTouchRef.current) return;
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+
+    window.requestAnimationFrame(() => {
+      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [selectedItem]);
 
   return (
     <div className="page-stack search-page">
@@ -110,17 +125,31 @@ export default function Search({
           <div className="results-list">
             {filteredItems.length ? (
               filteredItems.map((item) => (
-                <WasteCard
-                  key={item.id}
-                  item={item}
-                  category={getCategoryById(item.categoryId)}
-                  lang={lang}
-                  t={t}
-                  isFavorite={activeFavoriteSet.has(item.id)}
-                  onToggleFavorite={onToggleFavorite}
-                  onSelect={() => setSelectedId(item.id)}
-                  selected={item.id === selectedId}
-                />
+                <Fragment key={item.id}>
+                  <WasteCard
+                    item={item}
+                    category={getCategoryById(item.categoryId)}
+                    lang={lang}
+                    t={t}
+                    isFavorite={activeFavoriteSet.has(item.id)}
+                    onToggleFavorite={onToggleFavorite}
+                    onSelect={() => handleSelectItem(item.id)}
+                    selected={item.id === selectedId}
+                  />
+                  {item.id === selectedId ? (
+                    <WasteDetailPanel
+                      as="section"
+                      panelRef={detailRef}
+                      item={selectedItem}
+                      category={selectedCategory}
+                      lang={lang}
+                      t={t}
+                      favoriteIds={favoriteIds}
+                      onToggleFavorite={onToggleFavorite}
+                      className="mobile-inline-detail search-inline-detail"
+                    />
+                  ) : null}
+                </Fragment>
               ))
             ) : (
               <EmptyState
@@ -141,6 +170,7 @@ export default function Search({
           t={t}
           favoriteIds={favoriteIds}
           onToggleFavorite={onToggleFavorite}
+          className="desktop-detail search-side-detail"
         />
       </section>
     </div>

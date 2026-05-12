@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Heart, Search } from 'lucide-react';
 import EmptyState from '../components/EmptyState';
 import MascotMini from '../components/MascotMini';
@@ -18,6 +18,8 @@ export default function Favorites({
   onNavigate,
 }) {
   const [selectedId, setSelectedId] = useState(null);
+  const detailRef = useRef(null);
+  const selectedByTouchRef = useRef(false);
   const favoriteItems = useMemo(
     () => getFavoriteItems(wasteItems, favoriteIds),
     [wasteItems, favoriteIds]
@@ -41,6 +43,20 @@ export default function Favorites({
     }
   }, [favoriteItems, selectedId]);
 
+  const handleSelectItem = useCallback((itemId) => {
+    selectedByTouchRef.current = true;
+    setSelectedId(itemId);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedItem || !selectedByTouchRef.current) return;
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+
+    window.requestAnimationFrame(() => {
+      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [selectedItem]);
+
   return (
     <div className="page-stack favorites-page">
       <section className="page-hero favorites-hero">
@@ -61,17 +77,31 @@ export default function Favorites({
         <section className="favorites-workspace">
           <div className="favorites-collection">
             {favoriteItems.map((item) => (
-              <WasteCard
-                key={item.id}
-                item={item}
-                category={getCategoryById(item.categoryId)}
-                lang={lang}
-                t={t}
-                isFavorite={activeFavoriteSet.has(item.id)}
-                onToggleFavorite={onToggleFavorite}
-                onSelect={() => setSelectedId(item.id)}
-                selected={selectedItem?.id === item.id}
-              />
+              <Fragment key={item.id}>
+                <WasteCard
+                  item={item}
+                  category={getCategoryById(item.categoryId)}
+                  lang={lang}
+                  t={t}
+                  isFavorite={activeFavoriteSet.has(item.id)}
+                  onToggleFavorite={onToggleFavorite}
+                  onSelect={() => handleSelectItem(item.id)}
+                  selected={selectedItem?.id === item.id}
+                />
+                {selectedItem?.id === item.id ? (
+                  <WasteDetailPanel
+                    as="section"
+                    panelRef={detailRef}
+                    item={selectedItem}
+                    category={selectedCategory}
+                    lang={lang}
+                    t={t}
+                    favoriteIds={favoriteIds}
+                    onToggleFavorite={onToggleFavorite}
+                    className="mobile-inline-detail favorites-inline-detail"
+                  />
+                ) : null}
+              </Fragment>
             ))}
           </div>
 
@@ -82,6 +112,7 @@ export default function Favorites({
             t={t}
             favoriteIds={favoriteIds}
             onToggleFavorite={onToggleFavorite}
+            className="desktop-detail favorites-side-detail"
           />
         </section>
       ) : (

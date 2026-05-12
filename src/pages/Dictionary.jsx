@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, BookOpenCheck, Boxes } from 'lucide-react';
 import CategoryBadge from '../components/CategoryBadge';
 import IconRenderer from '../components/IconRenderer';
@@ -19,7 +19,9 @@ export default function Dictionary({
 }) {
   const [activeCategoryId, setActiveCategoryId] = useState(categories[0]?.id || 'burnable');
   const [selectedWasteId, setSelectedWasteId] = useState(null);
+  const categoryDetailRef = useRef(null);
   const detailRef = useRef(null);
+  const selectedByTouchRef = useRef(false);
   const favoriteLookup = useMemo(() => favoriteSet || new Set(favoriteIds), [favoriteIds, favoriteSet]);
   const itemsByCategory = useMemo(
     () =>
@@ -55,14 +57,29 @@ export default function Dictionary({
   }, [activeItems, selectedWasteId]);
 
   useEffect(() => {
-    if (selectedWaste) {
-      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    if (!selectedWaste || !selectedByTouchRef.current) return;
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+
+    window.requestAnimationFrame(() => {
+      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }, [selectedWaste]);
 
   const handleCategorySelect = useCallback((nextCategoryId) => {
     setActiveCategoryId(nextCategoryId);
     setSelectedWasteId(null);
+  }, []);
+  const handleMobileCategorySelect = useCallback((nextCategoryId) => {
+    handleCategorySelect(nextCategoryId);
+
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+    window.requestAnimationFrame(() => {
+      categoryDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [handleCategorySelect]);
+  const handleSelectWaste = useCallback((itemId) => {
+    selectedByTouchRef.current = true;
+    setSelectedWasteId(itemId);
   }, []);
 
   return (
@@ -85,7 +102,7 @@ export default function Dictionary({
                 type="button"
                 key={category.id}
                 className={activeCategoryId === category.id ? 'dictionary-card active' : 'dictionary-card'}
-                onClick={() => handleCategorySelect(category.id)}
+                onClick={() => handleMobileCategorySelect(category.id)}
                 style={{ '--card-accent': category.color, '--card-soft': category.softColor }}
                 aria-pressed={activeCategoryId === category.id}
               >
@@ -116,7 +133,7 @@ export default function Dictionary({
           })}
         </div>
 
-        <aside className="category-detail premium-category-detail">
+        <aside className="category-detail premium-category-detail" ref={categoryDetailRef}>
           {activeCategory ? (
             <>
               <div
@@ -153,24 +170,51 @@ export default function Dictionary({
 
               <div className="compact-item-grid">
                 {activeItems.map((item) => (
-                  <WasteCard
-                    key={item.id}
-                    item={item}
-                    category={activeCategory}
-                    lang={lang}
-                    t={t}
-                    isFavorite={favoriteLookup.has(item.id)}
-                    onToggleFavorite={onToggleFavorite}
-                    onSelect={() => setSelectedWasteId(item.id)}
-                    selected={selectedWasteId === item.id}
-                    showDetails={false}
-                  />
+                  <Fragment key={item.id}>
+                    <WasteCard
+                      item={item}
+                      category={activeCategory}
+                      lang={lang}
+                      t={t}
+                      isFavorite={favoriteLookup.has(item.id)}
+                      onToggleFavorite={onToggleFavorite}
+                      onSelect={() => handleSelectWaste(item.id)}
+                      selected={selectedWasteId === item.id}
+                      showDetails={false}
+                    />
+                    {selectedWasteId === item.id ? (
+                      <WasteDetailPanel
+                        as="section"
+                        panelRef={detailRef}
+                        item={selectedWaste}
+                        category={activeCategory}
+                        lang={lang}
+                        t={t}
+                        favoriteIds={favoriteIds}
+                        onToggleFavorite={onToggleFavorite}
+                        className="mobile-inline-detail dictionary-inline-detail"
+                      />
+                    ) : null}
+                  </Fragment>
                 ))}
               </div>
 
+              {!selectedWaste ? (
+                <WasteDetailPanel
+                  as="section"
+                  item={null}
+                  category={activeCategory}
+                  lang={lang}
+                  t={t}
+                  favoriteIds={favoriteIds}
+                  onToggleFavorite={onToggleFavorite}
+                  emptyTitle={t.dictionary.selectItemPrompt}
+                  className="mobile-inline-detail dictionary-inline-detail"
+                />
+              ) : null}
+
               <WasteDetailPanel
                 as="section"
-                panelRef={detailRef}
                 item={selectedWaste}
                 category={activeCategory}
                 lang={lang}
@@ -178,7 +222,7 @@ export default function Dictionary({
                 favoriteIds={favoriteIds}
                 onToggleFavorite={onToggleFavorite}
                 emptyTitle={t.dictionary.selectItemPrompt}
-                className="dictionary-item-detail"
+                className="desktop-detail dictionary-item-detail"
               />
             </>
           ) : (
